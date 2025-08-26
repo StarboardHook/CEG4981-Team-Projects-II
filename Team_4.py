@@ -26,6 +26,20 @@ def process_images(image_folder):
         red_mask = detect_red_regions(image)
         circles = detect_circles(image)
 
+        if len(circles) > 2:
+            for i, circle1 in enumerate(circles):
+                if any(
+                    is_circle_overlap(circle1, circle2) 
+                    for j, circle2 in enumerate(circles) if i != j
+                ):
+                    mask_circle = np.zeros_like(red_mask)
+                    cv.circle(mask_circle, int(circle1[0]), int(circle1[1]), circle1[2], 255, -1)
+                    if cv.countNonZero(cv.bitwise_and(red_mask, mask_circle)) > 100:
+                        selected_images.append(img_path)
+                        break
+        if len(selected_images) == 10:
+            break
 
+    print("Identified Images: ", selected_images)                
 
 process_images('path/to/images')

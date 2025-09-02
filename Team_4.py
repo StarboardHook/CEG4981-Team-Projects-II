@@ -48,4 +48,4 @@ def process_images(image_folder):
 
     print("Identified Images: ", selected_images)                
 
-process_images('path/to/images')
+process_images('./Images')

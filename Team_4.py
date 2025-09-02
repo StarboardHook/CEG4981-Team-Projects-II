@@ -19,6 +19,12 @@ def detect_red_regions(image):
     red_mask = cv.add(mask1, mask2)
     return red_mask
 
+def is_circle_overlap(circle1, circle2):
+    x1, y1, r1 = circle1
+    x2, y2, r2 = circle2
+    distance = np.sqrt((x1-x2)**2 + (y1-y2)**2)
+    return distance < (r1 + r2)
+
 def process_images(image_folder):
     selected_images = []
     for img_path in glob.glob(f"{image_folder}/*.jpg"):

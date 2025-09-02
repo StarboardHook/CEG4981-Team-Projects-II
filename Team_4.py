@@ -27,12 +27,12 @@ def is_circle_overlap(circle1, circle2):
 
 def process_images(image_folder):
     selected_images = []
-    for img_path in glob.glob(f"{image_folder}/*.jpg"):
+    for img_path in glob.glob(f"{image_folder}/*.png"):
         image = cv.imread(img_path)
         red_mask = detect_red_regions(image)
         circles = detect_circles(image)
 
-        if len(circles) > 2:
+        if len(circles) >= 2:
             for i, circle1 in enumerate(circles):
                 if any(
                     is_circle_overlap(circle1, circle2) 

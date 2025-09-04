@@ -4,11 +4,27 @@ import glob
 
 def detect_circles(image):
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    gray = cv.medianBlur(gray, 5)
+    rows = gray.shape[0]
     circles = cv.HoughCircles(
-        gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=20,
-        param1=50, param2=30, minRadius=20, maxRadius=200
+        gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=rows/8,
+        param1=200, param2=50, minRadius=0, maxRadius=0
     )
-    return circles[0] if circles is not None else []
+
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype("int")
+        output = image.copy()
+        for (x, y, r) in circles:
+            cv.circle(output, (x, y), r, (0, 255, 0), 2)   # circle outline
+            cv.circle(output, (x, y), 2, (0, 0, 255), 3)   # center point
+        cv.imshow("Detected Circles", output)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
+        return circles
+    else:
+        return []
+    #cv.imshow("Detected Circles", circles)
+    #return circles[0] if circles is not None else []
 
 def detect_red_regions(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -26,6 +42,20 @@ def is_circle_overlap(circle1, circle2):
     distance = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
     return distance < (r1 + r2)
 
+def show_detected_circles(image, circles, winname="Detected Circles"):
+    output = image.copy()
+
+    if len(circles) > 0:
+        for (x, y, r) in circles:
+            # draw the outer circle
+            cv.circle(output, (int(x), int(y)), int(r), (0, 255, 0), 2)
+            # draw the circle center
+            cv.circle(output, (int(x), int(y)), 2, (0, 0, 255), 3)
+
+    cv.imshow(winname, output)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
 def process_images(image_folder):
     selected_images = []
     for img_path in glob.glob(f"{image_folder}/*.png"):
@@ -35,6 +65,7 @@ def process_images(image_folder):
 
         red_mask = detect_red_regions(image)
         circles = detect_circles(image)
+        #show_detected_circles(image,circles)
 
         if len(circles) >= 2:
             for i, circle1 in enumerate(circles):

@@ -4,7 +4,7 @@ import glob
 
 def detect_circles(image):
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-    gray = cv.medianBlur(gray, 5)
+    gray = cv.medianBlur(gray, 9)
     rows = gray.shape[0]
     circles = cv.HoughCircles(
         gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=rows/8,

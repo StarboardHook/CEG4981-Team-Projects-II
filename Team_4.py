@@ -17,7 +17,7 @@ def detect_circles(image):
         for (x, y, r) in circles:
             cv.circle(output, (x, y), r, (0, 255, 0), 2)   # circle outline
             cv.circle(output, (x, y), 2, (0, 0, 255), 3)   # center point
-        cv.imshow("Detected Circles", output)
+        cv.imshow("Detected Images", output)
         cv.waitKey(0)
         cv.destroyAllWindows()
         return circles
@@ -28,33 +28,16 @@ def detect_circles(image):
 
 def detect_red_regions(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    lower_red1 = np.array([0, 100, 100])   # Lower range for red
-    upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([160, 100, 100]) # Upper range for red
-    upper_red2 = np.array([180, 255, 255])
-    mask1 = cv.inRange(hsv, lower_red1, upper_red1)
-    mask2 = cv.inRange(hsv, lower_red2, upper_red2)
-    return cv.add(mask1, mask2)
+    lower = np.array([0, 60, 40])   # Lower range for red
+    upper = np.array([160, 60, 40]) # Upper range for red
+    mask = cv.inRange(hsv, lower, upper)
+    return cv.bitwise_and(image, image, mask=mask)
 
 def is_circle_overlap(circle1, circle2):
     x1, y1, r1 = circle1
     x2, y2, r2 = circle2
     distance = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
     return distance < (r1 + r2)
-
-def show_detected_circles(image, circles, winname="Detected Circles"):
-    output = image.copy()
-
-    if len(circles) > 0:
-        for (x, y, r) in circles:
-            # draw the outer circle
-            cv.circle(output, (int(x), int(y)), int(r), (0, 255, 0), 2)
-            # draw the circle center
-            cv.circle(output, (int(x), int(y)), 2, (0, 0, 255), 3)
-
-    cv.imshow(winname, output)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
 
 def process_images(image_folder):
     selected_images = []
@@ -65,7 +48,6 @@ def process_images(image_folder):
 
         red_mask = detect_red_regions(image)
         circles = detect_circles(image)
-        #show_detected_circles(image,circles)
 
         if len(circles) >= 2:
             for i, circle1 in enumerate(circles):
@@ -81,7 +63,7 @@ def process_images(image_folder):
                         255,
                         -1
                     )
-                    if cv.countNonZero(cv.bitwise_and(red_mask, mask_circle)) > 100:
+                    if cv.countNonZero(cv.bitwise_and(red_mask, mask_circle)) > 0:
                         selected_images.append(img_path)
                         break
         if len(selected_images) == 10:

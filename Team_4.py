@@ -2,35 +2,37 @@ import cv2 as cv
 import numpy as np
 import glob
 
-def detect_circles(image):
+def detect_circles(image, output_path):
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     gray = cv.medianBlur(gray, 9)
     rows = gray.shape[0]
     circles = cv.HoughCircles(
         gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=rows/8,
-        param1=200, param2=50, minRadius=0, maxRadius=0
+        param1=200, param2=50, minRadius=5, maxRadius=0
     )
 
     if circles is not None:
-        circles = np.round(circles[0, :]).astype("int")
+        circles = np.round(circles[0, :2]).astype("int")  # Limit to 2 circles
         output = image.copy()
         for (x, y, r) in circles:
             cv.circle(output, (x, y), r, (0, 255, 0), 2)   # circle outline
             cv.circle(output, (x, y), 2, (0, 0, 255), 3)   # center point
-        cv.imshow("Detected Images", output)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        cv.imwrite(output_path, output)  # Save the output image
         return circles
     else:
         return []
-    #cv.imshow("Detected Circles", circles)
-    #return circles[0] if circles is not None else []
 
 def detect_red_regions(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 60, 40])   # Lower range for red
-    upper = np.array([160, 60, 40]) # Upper range for red
-    mask = cv.inRange(hsv, lower, upper)
+    lower1 = np.array([0, 50, 50])   # Lower range for red (0-10)
+    upper1 = np.array([10, 255, 255])
+    lower2 = np.array([170, 50, 50]) # Upper range for red (170-180)
+    upper2 = np.array([180, 255, 255])
+    mask1 = cv.inRange(hsv, lower1, upper1)
+    mask2 = cv.inRange(hsv, lower2, upper2)
+    mask = cv.bitwise_or(mask1, mask2)
+    cv.imshow("Red Mask", mask)
+    cv.waitKey(0)
     return cv.bitwise_and(image, image, mask=mask)
 
 def is_circle_overlap(circle1, circle2):
@@ -47,7 +49,8 @@ def process_images(image_folder):
             continue  # Skip if image not loaded
 
         red_mask = detect_red_regions(image)
-        circles = detect_circles(image)
+        output_path = img_path.replace(".png", "_output.png")
+        circles = detect_circles(image, output_path)
 
         if len(circles) >= 2:
             for i, circle1 in enumerate(circles):

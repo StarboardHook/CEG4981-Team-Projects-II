@@ -17,7 +17,7 @@ def detect_circles(image):
         for (x, y, r) in circles:
             cv.circle(output, (x, y), r, (0, 255, 0), 2)   # circle outline
             cv.circle(output, (x, y), 2, (0, 0, 255), 3)   # center point
-        cv.imshow("Detected Circles", output)
+        cv.imshow("Detected Images", output)
         cv.waitKey(0)
         cv.destroyAllWindows()
         return circles
@@ -31,7 +31,7 @@ def detect_red_regions(image):
     lower = np.array([0, 60, 40])   # Lower range for red
     upper = np.array([160, 60, 40]) # Upper range for red
     mask = cv.inRange(hsv, lower, upper)
-    return cv.add(mask)
+    return cv.bitwise_and(image, image, mask=mask)
 
 def is_circle_overlap(circle1, circle2):
     x1, y1, r1 = circle1
@@ -63,7 +63,7 @@ def process_images(image_folder):
                         255,
                         -1
                     )
-                    if cv.countNonZero(cv.bitwise_and(red_mask, mask_circle)) > 100:
+                    if cv.countNonZero(cv.bitwise_and(red_mask, mask_circle)) > 0:
                         selected_images.append(img_path)
                         break
         if len(selected_images) == 10:

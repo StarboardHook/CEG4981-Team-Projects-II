@@ -3,9 +3,13 @@ import numpy as np
 import glob
 
 def detect_circles(image):
+    #converts image to grayscale
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    #applies blur to reduce effect of background noise in circle detection
     gray = cv.medianBlur(gray, 9)
+    #number of rows for numpy array
     rows = gray.shape[0]
+    #circles detected in the grayscale image
     circles = cv.HoughCircles(
         gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=rows/8,
         param1=200, param2=50, minRadius=0, maxRadius=0
@@ -27,16 +31,25 @@ def detect_circles(image):
     #return circles[0] if circles is not None else []
 
 def detect_red_regions(image):
+    #convert image to hsv to prep for red detection
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+    #create mask for lower red values of hue
     lower_red1 = np.array([0,   60,  40], dtype=np.uint8)
     upper_red1 = np.array([12, 255, 255], dtype=np.uint8)
+    #create mask for upper red values of hue
     lower_red2 = np.array([168, 60,  40], dtype=np.uint8)
     upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
 
+    #mask1 = lower red msak
     mask1 = cv.inRange(hsv, lower_red1, upper_red1)
+    #mask2 = upper red mask
     mask2 = cv.inRange(hsv, lower_red2, upper_red2)
+    #combine red masks
     red_mask= mask1+mask2
+    #display red mask to output
     cv.imshow("Red Mask", red_mask)
+    #apply mask to image and attempt to detect circle to prep for image compositing
+    detect_circles(cv.bitwise_and(image, image, mask=red_mask))
     return red_mask
 
 def is_circle_overlap(circle1, circle2):

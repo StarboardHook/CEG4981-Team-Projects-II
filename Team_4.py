@@ -2,38 +2,36 @@ import cv2 as cv
 import numpy as np
 import glob
 
-def detect_circles(image, output_path):
+def detect_circles(image):
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     gray = cv.medianBlur(gray, 9)
     rows = gray.shape[0]
     circles = cv.HoughCircles(
         gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=rows/8,
-        param1=200, param2=50, minRadius=5, maxRadius=0
+        param1=200, param2=50, minRadius=0, maxRadius=0
     )
 
     if circles is not None:
-        circles = np.round(circles[0, :2]).astype("int")  # Limit to 2 circles
+        circles = np.round(circles[0, :]).astype("int")
         output = image.copy()
         for (x, y, r) in circles:
             cv.circle(output, (x, y), r, (0, 255, 0), 2)   # circle outline
             cv.circle(output, (x, y), 2, (0, 0, 255), 3)   # center point
-        cv.imwrite(output_path, output)  # Save the output image
+        cv.imshow("Detected Images", output)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
         return circles
     else:
         return []
+    #cv.imshow("Detected Circles", circles)
+    #return circles[0] if circles is not None else []
 
 def detect_red_regions(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    lower1 = np.array([0, 50, 50])   # Lower range for red (0-10)
-    upper1 = np.array([10, 255, 255])
-    lower2 = np.array([170, 50, 50]) # Upper range for red (170-180)
-    upper2 = np.array([180, 255, 255])
-    mask1 = cv.inRange(hsv, lower1, upper1)
-    mask2 = cv.inRange(hsv, lower2, upper2)
-    mask = cv.bitwise_or(mask1, mask2)
-    cv.imshow("Red Mask", mask)
-    cv.waitKey(0)
-    return cv.bitwise_and(image, image, mask=mask)
+    lower = np.array([0, 60, 40])   # Lower range for red
+    upper = np.array([0, 100, 100]) # Upper range for red
+    mask = cv.inRange(hsv, lower, upper)
+    return mask
 
 def is_circle_overlap(circle1, circle2):
     x1, y1, r1 = circle1
@@ -42,17 +40,24 @@ def is_circle_overlap(circle1, circle2):
     return distance < (r1 + r2)
 
 def process_images(image_folder):
+    #stores selected images as array
     selected_images = []
+    #checks for each image in the image folder that is of type .png
     for img_path in glob.glob(f"{image_folder}/*.png"):
+        #loads image from filepath into memory
         image = cv.imread(img_path)
+        #if none, continue to next image
         if image is None:
             continue  # Skip if image not loaded
 
+        #creates a red_mask for identifying images containing red circles
         red_mask = detect_red_regions(image)
-        output_path = img_path.replace(".png", "_output.png")
-        circles = detect_circles(image, output_path)
+        #returns circles detected in the image
+        circles = detect_circles(image)
 
+        #checking for images that potentially have a red circle overlapping with the deathstar (2 circles)
         if len(circles) >= 2:
+            #checks if any circle overlaps with another circle
             for i, circle1 in enumerate(circles):
                 if any(
                     is_circle_overlap(circle1, circle2)
@@ -70,6 +75,7 @@ def process_images(image_folder):
                         selected_images.append(img_path)
                         break
         if len(selected_images) == 10:
+            print("Identified Images:", selected_images)
             break
 
     print("Identified Images:", selected_images)

@@ -28,10 +28,16 @@ def detect_circles(image):
 
 def detect_red_regions(image):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-    lower = np.array([0, 60, 40])   # Lower range for red
-    upper = np.array([0, 100, 100]) # Upper range for red
-    mask = cv.inRange(hsv, lower, upper)
-    return mask
+    lower_red1 = np.array([0,   60,  40], dtype=np.uint8)
+    upper_red1 = np.array([12, 255, 255], dtype=np.uint8)
+    lower_red2 = np.array([168, 60,  40], dtype=np.uint8)
+    upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
+
+    mask1 = cv.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv.inRange(hsv, lower_red2, upper_red2)
+    red_mask= mask1+mask2
+    cv.imshow("Red Mask", red_mask)
+    return red_mask
 
 def is_circle_overlap(circle1, circle2):
     x1, y1, r1 = circle1

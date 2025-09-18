@@ -2,6 +2,27 @@ import cv2 as cv
 import numpy as np
 import glob
 
+def detect_red_regions(image):
+    #convert image to hsv to prep for red detection
+    hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+    #create mask for lower red values of hue
+    lower_red1 = np.array([0,   60,  40], dtype=np.uint8)
+    upper_red1 = np.array([12, 255, 255], dtype=np.uint8)
+    #create mask for upper red values of hue
+    lower_red2 = np.array([168, 60,  40], dtype=np.uint8)
+    upper_red2 = np.array([180, 255, 255], dtype=np.uint8)
+
+    #mask1 = lower red msak
+    mask1 = cv.inRange(hsv, lower_red1, upper_red1)
+    #mask2 = upper red mask
+    mask2 = cv.inRange(hsv, lower_red2, upper_red2)
+    #combine red masks
+    red_mask= mask1+mask2
+    #display red mask to output
+    cv.imshow("Red Mask", red_mask)
+    
+    return red_mask
+
 #load in images 1 by 1 from a folder and check if the file path is valid
 #create a red mask for the image and an output vector of the found circles
 #create an image using the red mask to pull circle output vector

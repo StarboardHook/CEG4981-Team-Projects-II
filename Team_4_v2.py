@@ -21,8 +21,8 @@ def detect_red_regions(image, debug=False):
     red_mask = cv.morphologyEx(red_mask, cv.MORPH_CLOSE, kernel, iterations=1)
 
     if debug:
-        cv.imshow("Red Mask", red_mask)
-        cv.waitKey(1)
+        cv.imshow(f"Red Mask {image}", red_mask)
+        cv.waitKey(0)
     return red_mask
 
 def detect_circles(image_or_gray, isRed=False, debug=False):
@@ -67,8 +67,8 @@ def detect_circles(image_or_gray, isRed=False, debug=False):
         for (x, y, r) in out:
             cv.circle(vis, (x, y), r, (0, 255, 0), 2)
             cv.circle(vis, (x, y), 2, (0, 0, 255), 3)
-        cv.imshow(f"Detected Circles (red={isRed})", vis)
-        cv.waitKey(1)
+        cv.imshow(f"Detected Circles (red={isRed}) {image_or_gray}", vis)
+        cv.waitKey(0)
     return out
 
 def is_circle_overlap(c1, c2):
@@ -78,7 +78,7 @@ def is_circle_overlap(c1, c2):
     # True for overlap OR containment
     return d < (r1 + r2)
 
-def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=True):
+def process_images(image_folder, limit=11, debug=False, require_exactly_one_red=True):
     selected_images = []
     for img_path in glob.glob(os.path.join(image_folder, "*.png")):
         image = cv.imread(img_path, cv.IMREAD_COLOR)
@@ -110,10 +110,13 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
         if len(selected_images) >= limit:
             break
 
-    print("Identified Images:", selected_images)
+    print("Identified Images:")
+    for img in selected_images:
+        print(" -", img)
     # If you used debug=True and want to close windows:
     # cv.destroyAllWindows()
     return selected_images
 
 # run
-process_images('./Images', debug=False)
+process_images('./Images', debug=True)
+

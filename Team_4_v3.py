@@ -1,6 +1,8 @@
 import cv2 as cv
 import numpy as np
 import glob, os
+import transceiver
+port = "COM5"
 
 def detect_red_regions(image, imageName, debug=False):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -102,4 +104,14 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
 
 # run
 #process_images('./Images', debug=True)
-process_images('./Images', debug=True)
+target_img = process_images('./Images', debug=False)
+files = []
+for i in range(len(target_img)):
+    file_path = target_img[i]
+    file_bytes = f.read()
+    bits = bits + len(file_bytes)*8
+    files.append(file_bytes)
+
+t = transceiver.transceiver(port)
+t.open()
+t.transmit(files)

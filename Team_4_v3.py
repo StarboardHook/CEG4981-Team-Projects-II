@@ -6,9 +6,9 @@ def detect_red_regions(image, imageName, debug=False):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
     # two red ranges
-    lower_red1 = np.array([0,   60,  40], np.uint8)
+    lower_red1 = np.array([0, 200,  200], np.uint8)
     upper_red1 = np.array([12, 255, 255], np.uint8)
-    lower_red2 = np.array([168, 60,  40], np.uint8)
+    lower_red2 = np.array([168, 200,  200], np.uint8)
     upper_red2 = np.array([180, 255, 255], np.uint8)
 
     mask1 = cv.inRange(hsv, lower_red1, upper_red1)
@@ -37,7 +37,7 @@ def detect_circles(image, imageName, debug=False):
         gray = image.copy()
 
     # blur helps Hough; lighter blur for binary masks
-    gray = cv.GaussianBlur(gray, (5, 5), 1.5)
+    gray = cv.GaussianBlur(gray, (5, 5), 2)
 
     rows = gray.shape[0]
     minDist = max(10, rows // 8)
@@ -64,7 +64,7 @@ def detect_circles(image, imageName, debug=False):
         for (x, y, r) in out:
             cv.circle(vis, (x, y), r, (0, 255, 0), 2)
             cv.circle(vis, (x, y), 2, (0, 0, 255), 3)
-        cv.imshow(f"{imageName} (red={isRed})", vis)
+        cv.imshow(f"{imageName}", vis)
         cv.waitKey(0)
     return out
 
@@ -102,4 +102,4 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
 
 # run
 #process_images('./Images', debug=True)
-process_images('./Images', debug=False)
+process_images('./Images', debug=True)

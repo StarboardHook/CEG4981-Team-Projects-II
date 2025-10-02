@@ -122,7 +122,7 @@ for i in range(len(target_img)):
 files = []
 
 # prep images for transmission
-for i in 1:#in range(len(encrypted_files)):
+for i in range (1):#in range(len(encrypted_files)):
     with open(encrypted_files[i], 'rb') as f:
         files.append(f.read())
 

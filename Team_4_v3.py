@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import glob, os
 import transceiver
+import aes
 port = "/dev/ttyUSB0"
 
 def detect_red_regions(image, imageName, debug=False):
@@ -106,13 +107,22 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
 #process_images('./Images', debug=True)
 target_img = process_images('./Images', debug=False)
 
+# encrypt images
+password = "ThisKeyForDemoOnly!"
+encrypted_files = []
+for i in range(len(target_img)):
+    encrypted_file = f'./encrypted_{i}.bin'
+    aes.encyrpt(password, target_img[i], encrypted_file)
+    encrypted_files.append(encrypted_file)
 
 files = []
 
-for i in range(len(target_img)):
-    with open(target_img[i], 'rb') as f:
+# prep images for transmission
+for i in range(len(encrypted_files)):
+    with open(encrypted_files[i], 'rb') as f:
         files.append(f.read())
 
+# transmit images
 t = transceiver.transceiver(port)
 t.open()
 t.transmit(files)

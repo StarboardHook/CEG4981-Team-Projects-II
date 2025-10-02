@@ -109,7 +109,7 @@ target_img = process_images('./Images', debug=False)
 
 #convert png images to JPEG
 for i in range(len(target_img)):
-    target_img.append(cv.imwrite(f'./Images/image_{i}.jpg', cv.imread(target_img[i])) and f'./Images/image_{i}.jpg')
+    target_img[i] = (cv.imwrite(f'./Images/image_{i}.jpg', cv.imread(target_img[i])) and f'./Images/image_{i}.jpg')
 # encrypt images
 password = "ThisKeyForDemoOnly!"
 encrypted_files = []
@@ -122,7 +122,7 @@ for i in range(len(target_img)):
 files = []
 
 # prep images for transmission
-for i in range (1):#in range(len(encrypted_files)):
+for i in range(1):#in range(len(encrypted_files)):
     with open(encrypted_files[i], 'rb') as f:
         files.append(f.read())
 

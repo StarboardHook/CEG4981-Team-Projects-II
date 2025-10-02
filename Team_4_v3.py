@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 import glob, os
 import transceiver
-port = "COM5"
+port = "/dev/ttyUSB0"
 
 def detect_red_regions(image, imageName, debug=False):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)

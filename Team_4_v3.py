@@ -105,12 +105,13 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
 # run
 #process_images('./Images', debug=True)
 target_img = process_images('./Images', debug=False)
+
+
 files = []
+
 for i in range(len(target_img)):
-    file_path = target_img[i]
-    file_bytes = f.read()
-    bits = bits + len(file_bytes)*8
-    files.append(file_bytes)
+    with open(target_img[i], 'rb') as f:
+        files.append(f.read())
 
 t = transceiver.transceiver(port)
 t.open()

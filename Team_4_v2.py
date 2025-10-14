@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 import glob, os
 
-def detect_red_regions(image, debug=False):
+def detect_red_regions(image, imageName, debug=False):
     hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
     # two red ranges
@@ -21,11 +21,11 @@ def detect_red_regions(image, debug=False):
     red_mask = cv.morphologyEx(red_mask, cv.MORPH_CLOSE, kernel, iterations=1)
 
     if debug:
-        cv.imshow(f"Red Mask {image}", red_mask)
+        cv.imshow(f"{imageName}", red_mask)
         cv.waitKey(0)
     return red_mask
 
-def detect_circles(image_or_gray, isRed=False, debug=False):
+def detect_circles(image_or_gray, imageName, isRed=False, debug=False):
     """Return list[(x, y, r)] using HoughCircles. Accepts BGR image or single-channel mask/gray."""
     if image_or_gray is None:
         return []
@@ -67,7 +67,7 @@ def detect_circles(image_or_gray, isRed=False, debug=False):
         for (x, y, r) in out:
             cv.circle(vis, (x, y), r, (0, 255, 0), 2)
             cv.circle(vis, (x, y), 2, (0, 0, 255), 3)
-        cv.imshow(f"Detected Circles (red={isRed}) {image_or_gray}", vis)
+        cv.imshow(f"{imageName} (red={isRed})", vis)
         cv.waitKey(0)
     return out
 
@@ -78,22 +78,22 @@ def is_circle_overlap(c1, c2):
     # True for overlap OR containment
     return d < (r1 + r2)
 
-def process_images(image_folder, limit=11, debug=False, require_exactly_one_red=True):
+def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=True):
     selected_images = []
     for img_path in glob.glob(os.path.join(image_folder, "*.png")):
         image = cv.imread(img_path, cv.IMREAD_COLOR)
         if image is None or image.size == 0:
             continue
 
-        red_mask = detect_red_regions(image, debug=debug)
+        red_mask = detect_red_regions(image, img_path, debug=debug)
         if cv.countNonZero(red_mask) < 10:
             # very little red -> skip quickly
             continue
 
         masked = cv.bitwise_and(image, image, mask=red_mask)
 
-        gray_circles = detect_circles(image, isRed=False, debug=debug)
-        red_circles  = detect_circles(masked, isRed=True,  debug=debug)
+        gray_circles = detect_circles(image, img_path, isRed=False, debug=debug)
+        red_circles  = detect_circles(masked, img_path, isRed=True,  debug=debug)
 
         if not gray_circles or not red_circles:
             continue
@@ -110,13 +110,11 @@ def process_images(image_folder, limit=11, debug=False, require_exactly_one_red=
         if len(selected_images) >= limit:
             break
 
-    print("Identified Images:")
-    for img in selected_images:
-        print(" -", img)
+    print("Identified Images:", selected_images)
     # If you used debug=True and want to close windows:
     # cv.destroyAllWindows()
     return selected_images
 
 # run
-process_images('./Images', debug=True)
-
+#process_images('./Images', debug=True)
+process_images('./Images', debug=False)

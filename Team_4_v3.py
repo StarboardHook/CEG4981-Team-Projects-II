@@ -67,6 +67,8 @@ def detect_circles(image, imageName, debug=False):
         for (x, y, r) in out:
             cv.circle(vis, (x, y), r, (0, 255, 0), 2)
             cv.circle(vis, (x, y), 2, (0, 0, 255), 3)
+            #cropped = image[x - r:x + r, y - r:y + r]
+        #cv.imshow("Cropped Image", cropped)
         cv.imshow(f"{imageName}", vis)
         cv.waitKey(0)
     return out
@@ -92,7 +94,16 @@ def process_images(image_folder, limit=10, debug=False, require_exactly_one_red=
         if require_exactly_one_red and len(red_circles) != 1:
             continue
         if len(red_circles) == 1:
-            selected_images.append(img_path)
+            circle = red_circles[0]
+            x = circle[0]
+            y = circle[1]
+            r = circle[2]
+            cropped = image[y - r:y + r, x - r:x + r]
+            root, ext = os.path.splitext(img_path)
+            cropped_save = f"{root}_cropped.jpeg"
+            cv.imwrite(cropped_save, cropped)
+            cv.imshow("cropped image", cropped)
+            selected_images.append(cropped_save)
         if len(selected_images) >= limit:
             break
 

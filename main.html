@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Team 4: Upload Images</h1>
+    <form action="imageUp.php" method="POST" enctype="multipart/form-data" id="IUploader">
+        <input type="file" name ="inImage" onchange="this.form.submit()" accept="*" required>
+        <br><br>
+        <input type="button" onClick = "location.href = 'imageGrid.php'" value = "Show Image Grid">
+    </form>
+
+</body>
+</html>

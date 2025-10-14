@@ -1,7 +1,5 @@
 import transceiver
 import aes
-import pyaes
-import hashlib
 
 port = 'COM3'
 
@@ -11,13 +9,14 @@ t.open()
 
 encrypted_files = t.receive()
 
-h = hashlib.new('sha256')
-h.update("TheKeyForDemoOnly!".encode())
-key = h.digest()
-
-# Create the mode of operation to decrypt with; Mode is CTR
-mode = pyaes.AESModeOfOperationCTR(key)
+i = 1
 for file in encrypted_files:
-    
-    pyaes.decrypt_stream(mode, file, 'f{file}_dec.png')
-    # aes.decrypt('ThisKeyForDemoOnly!', file, 'f{file}_dec.png')
+    with open(f'{i}_enc.bin', "wb") as wfile:
+        wfile.write(file)
+    i += 1
+
+password = "ThisKeyForDemoOnly!"
+i = 1
+for file in encrypted_files:
+    aes.decrypt(password, f'{i}_enc.bin', f'{i}_dec.png')
+    i += 1

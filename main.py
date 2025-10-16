@@ -1,48 +1,15 @@
 # This is to be the main script to transmit and receive between the rpi and server
+# Works with Team_4_v4.py that does the heavy lifting
+import Team_4_v4 
 
-import os
-
-import aes
-import transceiver
-import Team_4_v3 
-
-def setup_transceiver() -> transceiver:
-    port = '/dev/ttyUSB0'
-    return transceiver.transceiver(port)
-
-def get_image_files(directory_path):
-    # Takes the directory path as a string
-    # Returns a list of the byte data of all the files in the directory
-    files = []
-    images = []
-    try:
-        entries = os.listdir(directory_path)
-        for entry in entries:
-            full_path = os.path.join(directory_path, entry)
-            # Check if the entry is a file
-            if os.path.isfile(full_path):
-                files.append(entry)
-    except FileNotFoundError:
-        print(f"Error: Directory not found at '{directory_path}'")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    
-    for file in files:
-        with open(file, 'rb'):
-            images.append(file.read())
-
-    return images
 
 def main():
-    print('Starting')
+    print('Starting Team4 main script')
 
-    print('Setting up the transceiver')
-    t = setup_transceiver()
-    print('Transceiver ready')
-
-    print('Setting up images')
-    images = get_image_files('./Images')
-    print('Images ready')
+    flash_drive_file_path = input('Input the file path for the images on the flash drive: ')
+   
+    print('Running Team_4_v4.py')
+    Team_4_v4.run(flash_drive_file_path)
 
 
 main()

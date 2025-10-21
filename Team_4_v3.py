@@ -10,8 +10,8 @@ def detect_red_regions(image, imageName, debug=False):
 
     # two red ranges
     lower_red1 = np.array([0, 200,  200], np.uint8)
-    upper_red1 = np.array([12, 255, 255], np.uint8)
-    lower_red2 = np.array([168, 200,  200], np.uint8)
+    upper_red1 = np.array([3, 255, 255], np.uint8)
+    lower_red2 = np.array([175, 200,  200], np.uint8)
     upper_red2 = np.array([180, 255, 255], np.uint8)
 
     mask1 = cv.inRange(hsv, lower_red1, upper_red1)
